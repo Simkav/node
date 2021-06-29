@@ -1,22 +1,22 @@
-/* 
-'use strict';
-const fs = require('fs');
-const { WASI } = require('wasi');
+/* 'use strict'
+const fs = require('fs')
+const { WASI } = require('wasi')
 const wasi = new WASI({
   args: process.argv,
   env: process.env,
   preopens: {
     '/sandbox': '/home/developer/test'
   }
-});
-const importObject = { wasi_snapshot_preview1: wasi.wasiImport };
+})
+const importObject = { wasi_snapshot_preview1: wasi.wasiImport }
 
-(async () => {
-  const wasm = await WebAssembly.compile(fs.readFileSync('./demo.wasm'));
-  const instance = await WebAssembly.instantiate(wasm, importObject);
+;(async () => {
+  const wasm = await WebAssembly.compile(fs.readFileSync('./demo.wasm'))
+  const instance = await WebAssembly.instantiate(wasm, importObject)
 
-  wasi.start(instance);
-})();
+  wasi.start(instance)
+})()
+//  --experimental-wasi-unstable-preview1 --experimental-wasm-bigint
  */
 /* 
 WASI = это системный интерфейс для платформы WebAssembly. 
