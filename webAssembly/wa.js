@@ -55,7 +55,18 @@ https://developer.mozilla.org/ru/docs/WebAssembly
 https://www.youtube.com/watch?v=h3kwQ7nbGb4&
 https://www.youtube.com/watch?v=1Ba1l0cieMY
 https://www.youtube.com/watch?v=qOPTlY-FMSw&
-
-
-
+wabt apt
+wat2wasm
 */
+const fs = require('fs')
+const http = require('http')
+const serv = http.createServer((req, res) => {
+  const stream = fs.createReadStream('./simple.wasm')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', '*')
+  res.setHeader('Access-Control-Allow-Headers', '*')
+  res.setHeader('Content-Type', 'application/wasm')
+  stream.pipe(res)
+})
+
+serv.listen(8001)
