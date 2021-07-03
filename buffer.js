@@ -379,7 +379,6 @@ buf.writeUInt32BE(value[, offset])
 buf.writeUInt32LE(value[, offset])
 buf.writeUIntBE(value, offset, byteLength)
 buf.writeUIntLE(value, offset, byteLength)
-buffer.transcode(source, fromEnc, toEnc)
 ================================================================================================================================================================
 buf.readUInt8([offset])
 buf.writeUInt8(value[, offset])
@@ -406,4 +405,12 @@ console.log(buffer.readUInt16BE(0));
  */
 /* 
 ================================================================================================================================================================
+*/
+/* 
+https://github.com/nodejs/node/blob/v14.17.2/lib/buffer.js#L369
+https://github.com/nodejs/node/blob/v14.17.2/lib/internal/buffer.js#L951
+https://github.com/nodejs/node/blob/141a6e34eed05577edf43ad085a74f330d0559cb/lib/internal/per_context/primordials.js#L5-L7
+primordials = хранит встроенные функции JS, и используется модулями
+чтобы не брать их из контекста пользовательского кода где он может их мутировать
+и быть уверенным в правильности их работы
 */
