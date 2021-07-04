@@ -100,6 +100,26 @@ inStream.push(null); // No more data
 inStream.pipe(process.stdout); */
 
 const { createReadStream, createWriteStream } = require('fs')
+const http = require('http') /* 
+const read = createReadStream('./test', { highWaterMark: 1 })
+const read2 = createReadStream('./test', { highWaterMark: 1 })
+const read3 = createReadStream('./test', { highWaterMark: 1 })
+const read4 = createReadStream('./test', { highWaterMark: 1 })
+
+setTimeout(() => {
+  read.emit('end')
+  console.log('aboba')
+}, 1000)
+
+read.pipe(process.stdout)
+read2.pipe(process.stdout)
+read3.pipe(process.stdout)
+read4.pipe(process.stdout)
+
+read4.on('close', () => {
+  console.log('end')
+})
+ */
 // const read = createReadStream('./test')
 // const write = createWriteStream('./test.copy')
 
@@ -118,18 +138,45 @@ report.on('data', data => {
   console.log(data)
 })
  */
-
+/* 
 const http = require('http')
 const serv = http.createServer((req, res) => {
-  res.write('aboba')
-  process.stdin.on('data', data => {
-    if (data.toString() === 'exit\n') {
-      res.end()
-      return
-    }
-    res.write(data)
+  // process.stdin.on('data', data => {
+  //   if (data.toString() === 'exit\n') {
+  //     res.end()
+  //     return
+  //   }
+  //   res.write(data)
+  // })
+  // res.on('close', () => {})
+  process.stdin.pipe(res)
+  res.on('close', () => {
+    process.stdin.unpipe(res)
   })
-  res.on('close', () => {})
 })
 
 serv.listen(8001)
+ */
+/* 
+const fs = require('fs')
+const http = require('http')
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'application/octet-stream' })
+  const stream = fs.createReadStream('./test')
+  stream.pipe(res)
+})
+
+server.listen(8001) */
+
+/* const fs = require('fs');
+const read = fs.createReadStream('./test')
+const write = fs.createWriteStream('./test', { flags: 'a' })
+
+read.pipe(write) */ const {
+  stdin,
+  stdout
+} = process
+
+stdin.on('data', data => {
+  stdout.write(data)
+})
