@@ -22,6 +22,22 @@ Transform — разновидность Duplex потоков, которые �
 
 Размер буфера можно указать через параметр highWaterMark, который можно задать в конструкторе класса.
 
+Flowing stream —
+ A stream that keeps on passing the data that can be directly listened to by using the data event on the stream.
+Non-flowing stream — A stream that does not push data automatically. 
+Instead, the stream stores the data in the buffer and we need to explicitly call the read() method of the stream to read it.
+
+mport { createReadStream, ReadStream } from 'fs';
+
+var readStream: ReadStream = createReadStream('./data.txt');
+
+setTimeout(() => {
+  const data = readStream.read(10);
+  console.log(data);
+}, 10);
+
+
+
 
 В Readable потоке данные буферизируются, когда над ним вызвается метод push(data),
 и остаются в буфере до тех пор, пока их не прочитают, вызвав метод read().
@@ -167,16 +183,30 @@ const server = http.createServer((req, res) => {
 })
 
 server.listen(8001) */
+const split2 = require('split2')
+const fs = require('fs')
+const copyFileWithReplace = (from, to, search, replace) => {
+  console.log(from)
+  const read = fs.createReadStream(from, {
+    encoding: 'utf8',
+    highWaterMark: 64
+  })
+  const write = fs.createWriteStream(to)
+  const split = split2()
+  read
+    .pipe(split)
+    .on('data', data => {
+      write.write(data.replace(search, replace) + '\n')
+    })
+    .on('close', () => {
+      split.destroy()
+      read.destroy()
+      write.destroy()
+    })
+}
 
-/* const fs = require('fs');
-const read = fs.createReadStream('./test')
-const write = fs.createWriteStream('./test', { flags: 'a' })
-
-read.pipe(write) */ const {
-  stdin,
-  stdout
-} = process
-
-stdin.on('data', data => {
-  stdout.write(data)
-})
+copyFileWithReplace('./data.html', './data.copy', /lorem/gi, 'ABOBA')
+setTimeout(() => {
+  // fs.createReadStream('./data.copy').pipe(process.stdout)
+  copyFileWithReplace('./data.copy', './data.copy', /ipsum/gi, 'alo')
+}, 5000)
