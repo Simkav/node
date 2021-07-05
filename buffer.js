@@ -50,13 +50,13 @@ Buffer.byteLength(string[, encoding]) : integer
 string - <string> | <Buffer> | <TypedArray> | <DataView> | <ArrayBuffer> | <SharedArrayBuffer>
 Возвращает числов байтов небходимое для string в указаной encoding
 */
-
-/* console.log(Buffer.byteLength('alo', 'utf8'))
+/* 
 const a = '☃'
 console.log(Buffer.byteLength(a, 'utf8'))
 console.log(a.length)
+const b = Buffer.from(a)
+const c = Buffer.from(b)
  */
-
 /*
 ================================================================================================================================================================
 Buffer.compare(buf1, buf2) : 0|-1|1
