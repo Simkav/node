@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+// https://www.youtube.com/playlist?list=PLrwNNiB6YOA18XANsFe0CnizlhYKjJT0f
 // https://cdn-media-1.freecodecamp.org/images/1*HGXpeiF5-hJrOk_8tT2jFA.png
 /* 
 Потоки позволяют обмениваться данными небольшими частями, что в свою очередь дает возможность в своей работе не расходовать много памяти.
@@ -78,20 +79,237 @@ unpipe - вызов rStream.unpipe(wStream) - возвращает rStream
 
 */
 
+const {
+  Readable,
+  Writable,
+  Duplex,
+  PassThrough,
+  Transform,
+  pipeline
+} = require('stream')
+const { createReadStream, createWriteStream, read } = require('fs')
+/* 
+// Custom read example
+const arr = new Array(20).fill(0).map((_, i) => `${i}`)
+class myRead extends Readable {
+  constructor (array) {
+    super({ objectMode: true }) //encoding: 'UTF-8' => Converts buffer to string
+    this.array = array
+    this.index = 0
+  }
+
+  _read () {
+    if (this.index <= this.array.length) {
+      const chunk = {
+        data: this.array[this.index],
+        index: this.index
+      }
+      this.push(chunk)
+      this.index += 1
+    } else this.push(null)
+  }
+}
+
+const read = new myRead(arr)
+ */
+/*
+//  flowing = null
+read.on('data', data => { //flowin = true
+  console.log(data)
+}) 
+*/
+// ============================================================================================================================================================================
+/*
+const interval = setInterval(() => {
+  const data = read.read() //flowin = false
+  if (!data) {
+    clearInterval(interval)
+  }
+  console.log(data)
+}, 100) 
+*/
+// ============================================================================================================================================================================
+
+/* 
+read
+  .on('error', err => {
+    console.error(err)
+  })
+  .on('pause', () => {
+    console.log('stream flow is paused')
+  })
+  .on('resume', () => {
+    console.log('stream flow is resumed')
+  })
+
+read.pause() //flowin = false
+setTimeout(() => {
+  read.on('data', data => {
+    console.log(data)
+  }) // если бы не .pause() то flowing = true
+  // console.log(read.readableFlowing)
+  read.resume() //flowin = true
+}, 2000)
+*/
+// ============================================================================================================================================================================
+// ============================================================================================================================================================================
+/* 
+// Custom write example
+class myWrite extends Writable {
+  constructor () {
+    super()
+  }
+  _write (chunk, encoding, done) {
+    process.stdout.write(chunk + '\n')
+    done()
+  }
+}
+const writer = new myWrite()
+
+for (let i = 0; i < 1000; i++) {
+  writer.write(`${i}`)
+}
+writer.end()
+*/
+// ============================================================================================================================================================================
+/* 
+// пример drain
+const readStream = createReadStream('./data.html')
+const writeStream = createWriteStream('./copy.copy')
+
+readStream.on('data', chunk => {
+  const result = writeStream.write(chunk)
+  console.log(chunk.length)
+  if (!result) {
+    console.log('backpressure')
+    readStream.pause()
+  }
+})
+
+readStream.on('error', err => {
+  console.log('An err has occured')
+  console.error(err)
+})
+
+readStream.on('end', () => {
+  writeStream.end()
+})
+
+writeStream.on('drain', () => {
+  console.log('drained')
+  readStream.resume()
+})
+
+writeStream.on('close', () => {
+  process.stdout.write('file copied \n')
+})
+ */
+
+// readStream.pipe(writeStream) - альтернатива всему этому огороду
+
+// ============================================================================================================================================================================
+// Duplex
+
+/* const readStream = createReadStream('./data.html')
+const writeStream = createWriteStream('./copy.copy')
+
+class Throttle extends Duplex {
+  constructor (ms) {
+    super()
+    this.delay = ms
+  }
+
+  _read () {}
+
+  _write (chunk, encoding, callback) {
+    this.push(chunk)
+    setTimeout(callback, this.delay)
+  }
+
+  _final () { // _final - перед закрытием потока, срабатывает перед колбеком
+    this.push(null)
+  } 
+}
+
+const report = new PassThrough() // PassThrought - простейший дуплекс стрим который ничего не делает
+const throttle = new Throttle(10)
+const throttle1 = new Throttle(10)
+let total = 0
+report.on('data', chunk => {
+  total += chunk.length
+  console.log('total bytes: ', total)
+})
+
+console.time('a')
+
+ */
+
+/* pipeline(readStream, throttle, report, writeStream, err => {
+  if (err) {
+    console.error(err)
+  }
+}).on('close', () => {
+  console.timeEnd('a')
+}) */
+
+// Тоже самое
+
+/* 
+readStream
+  .pipe(throttle)
+  .pipe(report)
+  .pipe(writeStream)
+  .on('close', () => {
+    console.timeEnd('a')
+  }) */
+
+// ============================================================================================================================================================================
+// Transform
+/* 
+class ReplaceText extends Transform {
+  constructor (char) {
+    super()
+    this.replaceChar = char
+  }
+
+  _transform (chunk, encoding, callback) {
+    const transformChunk = chunk
+      .toString()
+      .replace(/[a-z]|[A-Z]|[0-9]/g, this.replaceChar)
+      .toUpperCase()
+    this.push(transformChunk)
+    callback()
+  }
+
+  _flush (callback) { // called when there is no more written data to be consumed, but before the 'end' 
+    this.push('more stuff us being passed through...')
+    callback()
+  }
+}
+
+const xStream = new ReplaceText('x')
+
+process.stdin.pipe(xStream).pipe(process.stdout)
+*/
+
+
+
+// ============================================================================================================================================================================
+// ============================================================================================================================================================================
+// ============================================================================================================================================================================
+// ============================================================================================================================================================================
+// ============================================================================================================================================================================
+// ============================================================================================================================================================================
+// ============================================================================================================================================================================
+// ============================================================================================================================================================================
+
+/* 
 const { Readable, Writable } = require('stream')
 
-const arr = [
-  '<head>',
-  '<meta charset="UTF-8" />',
-  '<meta name="viewport" content="width=device-width, initial-scale=1.0" />',
-  '<link rel="stylesheet" href="./assets/css/reset.css" />',
-  '<link rel="stylesheet" href="./assets/css/style.css" />',
-  '<title>Document</title>',
-  '</head>'
-]
+const arr = ['1', '2', '3', '4', '5', '6']
 
 class ArrToStream extends Readable {
-  constructor (array) {
+  constructor (array = []) {
     super({ encoding: 'utf8' })
     this.array = array
     this.index = 0
@@ -106,7 +324,7 @@ class ArrToStream extends Readable {
   }
 }
 
-const ar = new ArrToStream(arr)
+const arrStream = new ArrToStream(arr)
 
 class StringToArr extends Writable {
   constructor (opt = {}) {
@@ -124,19 +342,23 @@ class StringToArr extends Writable {
     return this.arr.map(buffer => buffer.toString('utf8'))
   }
 }
-const a = new StringToArr()
+const stringArr = new StringToArr()
 process.stdin.on('data', data => {
   const value = data.toString().trim()
   if (value === 'exit') {
-    console.log(a.getUtfArr())
-    a.end()
-    process.exit(0)
+    console.log(stringArr.getUtfArr())
+    stringArr.end()
+  } else if (value === 'log') {
+    console.log(stringArr.getUtfArr())
   } else {
-    a.write(value)
+    stringArr.write(value)
   }
 })
-ar.pipe(a, { end: false })
-
+stringArr.on('close', () => {
+  process.exit(0)
+})
+arrStream.pipe(stringArr, { end: false })
+ */
 /* 
 ar.on('data', data => {
   console.log(data)
@@ -169,6 +391,7 @@ read.on('data', data => {
 })
 read.pipe(write)
 read.on('close', () => {
+  write.destroy()
   console.timeEnd('a')
 }) */
 /* let i = 0
@@ -176,7 +399,6 @@ let counter = 0
 const serv = http.createServer((req, res) => {
   const read = fs.createReadStream('./test', { highWaterMark: 15 })
   const a = read.read(25)
-  console.log(a)
   read.pipe(res)
 })
 
