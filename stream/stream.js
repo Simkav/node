@@ -292,9 +292,42 @@ const xStream = new ReplaceText('x')
 process.stdin.pipe(xStream).pipe(process.stdout)
 */
 
-
-
 // ============================================================================================================================================================================
+/* 
+// Таска с заменой через трансформ
+
+const split2 = require('split2')
+const reader = createReadStream('./data.html')
+const writer = createWriteStream('./dataRepaced.html')
+
+class ReplaceText extends Transform {
+  constructor (search, char) {
+    super()
+    this.searched = search
+    this.replaceChar = char
+  }
+
+  _transform (chunk, encoding, callback) {
+    const transformChunk = chunk
+      .toString()
+      .replace(this.searched, this.replaceChar)
+    this.push(transformChunk + '\n')
+    callback()
+  }
+
+  _flush (callback) {
+    // called when there is no more written data to be consumed, but before the 'end'
+    this.push('more stuff us being passed through...')
+    callback()
+  }
+}
+
+const replacer = new ReplaceText(/Lorem/gi, 'NOTLOREM')
+pipeline(reader, split2(), replacer, writer, err => {
+  err ? console.error(err) : console.log('Copied and replaced')
+})
+ */
+
 // ============================================================================================================================================================================
 // ============================================================================================================================================================================
 // ============================================================================================================================================================================
