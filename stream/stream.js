@@ -87,7 +87,8 @@ const {
   Transform,
   pipeline
 } = require('stream')
-const { createReadStream, createWriteStream, read } = require('fs')
+const { stdin, stdout } = require('process')
+const { createReadStream, createWriteStream } = require('fs')
 /* 
 // Custom read example
 const arr = new Array(20).fill(0).map((_, i) => `${i}`)
